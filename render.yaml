@@ -35,13 +35,12 @@ services:
       - key: DJANGO_SECRET_KEY
         generateValue: true
 
+  - name: redis
+    type: redis
+    plan: free
+
 databases:
   - name: productdb
     plan: free
     databaseName: productdb
     user: productuser
-
-services:
-  - name: redis
-    type: redis
-    plan: free
