@@ -11,6 +11,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
           name: redis
           property: connectionString
       - key: DJANGO_SECRET_KEY
@@ -30,6 +31,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
+          type: redis
           name: redis
           property: connectionString
       - key: DJANGO_SECRET_KEY
@@ -38,6 +40,7 @@ services:
   - name: redis
     type: redis
     plan: free
+    ipAllowList: []
 
 databases:
   - name: productdb
