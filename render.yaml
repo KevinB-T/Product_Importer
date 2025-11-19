@@ -2,6 +2,7 @@ services:
   - name: django-app
     type: web
     env: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn config.wsgi:application --preload"
     envVars:
@@ -22,6 +23,7 @@ services:
   - name: celery-worker
     type: worker
     env: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "celery -A config worker --pool=solo -l info"
     envVars:
