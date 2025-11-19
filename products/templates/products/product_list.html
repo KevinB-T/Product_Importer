@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Products · Product Importer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">Products</div>
+        <div class="page-subtitle">
+            Browse, search and manage imported products.
+        </div>
+    </div>
+    <div class="btn-row">
+        <a href="{% url 'upload' %}" class="btn btn-secondary">Import CSV</a>
+        <a href="{% url 'product_create' %}" class="btn btn-primary">New product</a>
+        <form method="post" action="{% url 'bulk_delete_products' %}"
+              style="margin: 0;"
+              onsubmit="return confirm('Delete ALL products? This cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger-soft btn-sm">
+                Delete all
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 1rem;">
+    <form method="get">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">SKU</label>
+                <input type="text" name="sku" class="form-control"
+                       value="{{ q_sku }}" placeholder="Search by SKU">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <input type="text" name="name" class="form-control"
+                       value="{{ q_name }}" placeholder="Search by name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" name="description" class="form-control"
+                       value="{{ q_desc }}" placeholder="Search by description">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Active status</label>
+                <select name="active" class="form-select">
+                    <option value="">Any</option>
+                    <option value="true" {% if q_active == "true" %}selected{% endif %}>
+                        Active only
+                    </option>
+                    <option value="false" {% if q_active == "false" %}selected{% endif %}>
+                        Inactive only
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary btn-sm">Apply filters</button>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary btn-sm">
+                Clear
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    {% if page_obj.object_list %}
+        <table>
+            <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Active</th>
+                <th>Created</th>
+                <th style="width: 1%">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for product in page_obj %}
+                <tr>
+                    <td><code>{{ product.sku }}</code></td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.price }}</td>
+                    <td>
+                        {% if product.is_active %}
+                            <span class="badge badge-success">Active</span>
+                        {% else %}
+                            <span class="badge badge-muted">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.created_at %}
+                            <span class="muted">{{ product.created_at|date:"Y-m-d H:i" }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{% url 'product_update' product.pk %}"
+                               class="btn btn-secondary btn-sm">
+                                Edit
+                            </a>
+                            <a href="{% url 'product_delete' product.pk %}"
+                               class="btn btn-danger-soft btn-sm">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if q_sku %}&sku={{ q_sku }}{% endif %}
+                              {% if q_name %}&name={{ q_name }}{% endif %}
+                              {% if q_desc %}&description={{ q_desc }}{% endif %}
+                              {% if q_active %}&active={{ q_active }}{% endif %}">
+                        « First
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}
+                              {% if q_sku %}&sku={{ q_sku }}{% endif %}
+                              {% if q_name %}&name={{ q_name }}{% endif %}
+                              {% if q_desc %}&description={{ q_desc }}{% endif %}
+                              {% if q_active %}&active={{ q_active }}{% endif %}">
+                        ‹ Prev
+                    </a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}
+                              {% if q_sku %}&sku={{ q_sku }}{% endif %}
+                              {% if q_name %}&name={{ q_name }}{% endif %}
+                              {% if q_desc %}&description={{ q_desc }}{% endif %}
+                              {% if q_active %}&active={{ q_active }}{% endif %}">
+                        Next ›
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}
+                              {% if q_sku %}&sku={{ q_sku }}{% endif %}
+                              {% if q_name %}&name={{ q_name }}{% endif %}
+                              {% if q_desc %}&description={{ q_desc }}{% endif %}
+                              {% if q_active %}&active={{ q_active }}{% endif %}">
+                        Last »
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="muted">No products found. Try importing a CSV or adjusting your filters.</p>
+    {% endif %}
+</div>
+{% endblock %}

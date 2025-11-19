@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Delete webhook · Product Importer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">Delete webhook</div>
+        <div class="page-subtitle">
+            This action cannot be undone.
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <p>
+        Are you sure you want to delete the webhook for
+        <strong>{{ object.get_event_display }}</strong>
+        → <span class="muted">{{ object.url }}</span>?
+    </p>
+
+    <form method="post" style="margin-top: 0.75rem;">
+        {% csrf_token %}
+        <div class="btn-row">
+            <button type="submit" class="btn btn-danger">
+                Yes, delete
+            </button>
+            <a href="{% url 'webhook_list' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

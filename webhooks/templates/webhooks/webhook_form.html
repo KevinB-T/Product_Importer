@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if object %}Edit webhook{% else %}New webhook{% endif %} · Product Importer
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">
+            {% if object %}Edit webhook{% else %}New webhook{% endif %}
+        </div>
+        <div class="page-subtitle">
+            Define where and when webhook requests should be sent.
+        </div>
+    </div>
+    <div class="btn-row">
+        <a href="{% url 'webhook_list' %}" class="btn btn-secondary">Back to webhooks</a>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label" for="{{ form.url.id_for_label }}">
+                    Destination URL
+                </label>
+                {{ form.url }}
+                {% if form.url.help_text %}
+                    <div class="form-help">{{ form.url.help_text }}</div>
+                {% endif %}
+                {% if form.url.errors %}
+                    <div class="form-help" style="color: #dc2626;">
+                        {{ form.url.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.event.id_for_label }}">
+                    Event type
+                </label>
+                {{ form.event }}
+                {% if form.event.errors %}
+                    <div class="form-help" style="color: #dc2626;">
+                        {{ form.event.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Status</span>
+                <label class="form-check-inline">
+                    {{ form.is_enabled }} Enabled
+                </label>
+                {% if form.is_enabled.errors %}
+                    <div class="form-help" style="color: #dc2626;">
+                        {{ form.is_enabled.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: 0.75rem;">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Save changes{% else %}Create webhook{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

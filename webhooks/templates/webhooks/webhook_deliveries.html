@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Webhook deliveries · Product Importer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">Webhook deliveries</div>
+        <div class="page-subtitle">
+            Recent attempts for <span class="muted">{{ webhook.url }}</span>
+            ({{ webhook.get_event_display }})
+        </div>
+    </div>
+    <div class="btn-row">
+        <a href="{% url 'webhook_list' %}" class="btn btn-secondary">Back to webhooks</a>
+        <a href="{% url 'webhook_test' webhook.id %}" class="btn btn-primary btn-sm">
+            Trigger test
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    {% if deliveries %}
+        <table>
+            <thead>
+            <tr>
+                <th>Triggered at</th>
+                <th>Status</th>
+                <th>Response time</th>
+                <th>Result</th>
+                <th>Error</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for d in deliveries %}
+                <tr>
+                    <td class="muted">
+                        {{ d.triggered_at|date:"Y-m-d H:i:s" }}
+                    </td>
+                    <td>
+                        {% if d.status_code %}
+                            {{ d.status_code }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.response_time_ms %}
+                            {{ d.response_time_ms }} ms
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.success %}
+                            <span class="badge badge-success">Success</span>
+                        {% else %}
+                            <span class="badge badge-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td style="max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {% if d.error_message %}
+                            <span class="muted" title="{{ d.error_message }}">{{ d.error_message }}</span>
+                        {% else %}
+                            <span class="muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="muted">
+            No deliveries logged yet. Use the “Trigger test” button above or wait for a real event.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

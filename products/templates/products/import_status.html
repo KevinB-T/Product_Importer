@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Import Status · Product Importer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">Import status</div>
+        <div class="page-subtitle">
+            Tracking import for <strong>{{ job.original_filename }}</strong>
+        </div>
+    </div>
+    <div class="btn-row">
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">Back to products</a>
+    </div>
+</div>
+
+<div class="card">
+    <div style="margin-bottom: 0.5rem;">
+        <span class="muted">Job ID:</span> <code>{{ job.id }}</code>
+    </div>
+
+    <div style="margin-bottom: 0.5rem;">
+        <span class="muted">Status:</span>
+        <span id="status-text">
+            {{ job.status|title }}
+        </span>
+    </div>
+
+    <div style="margin: 0.5rem 0 0.25rem;">
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"
+                 style="width: {{ job.progress_percent }}%;"></div>
+        </div>
+        <div class="muted" style="margin-top: 0.25rem;">
+            <span id="progress-label">{{ job.progress_percent }}%</span>
+            · <span id="rows-text">
+                {{ job.processed_rows }} / {{ job.total_rows }} rows
+            </span>
+        </div>
+    </div>
+
+    <div id="error" class="muted" style="margin-top: 0.5rem; color: #dc2626;"></div>
+
+    <p class="muted" style="margin-top: 0.75rem;">
+        This page will automatically refresh every few seconds until the import
+        finishes. You can safely leave and come back later.
+    </p>
+</div>
+
+<script>
+    (function () {
+        const jobId = "{{ job.id }}";
+        const statusText = document.getElementById("status-text");
+        const progressBar = document.getElementById("progress-bar");
+        const progressLabel = document.getElementById("progress-label");
+        const rowsText = document.getElementById("rows-text");
+        const errorBox = document.getElementById("error");
+
+        function updateUI(data) {
+            statusText.textContent = (data.status || "").toUpperCase();
+            const pct = data.progress || 0;
+            progressBar.style.width = pct + "%";
+            progressLabel.textContent = pct + "%";
+
+            if (data.total_rows !== null && data.total_rows !== undefined) {
+                rowsText.textContent = data.processed_rows + " / " +
+                    data.total_rows + " rows";
+            }
+
+            if (data.error_message) {
+                errorBox.textContent = data.error_message;
+            } else {
+                errorBox.textContent = "";
+            }
+        }
+
+        function shouldStop(status) {
+            return ["completed", "failed", "error"].indexOf(status) !== -1;
+        }
+
+        function fetchStatus() {
+            fetch(`/api/import/${jobId}/`)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    updateUI(data);
+                    if (!shouldStop(data.status)) {
+                        setTimeout(fetchStatus, 2000);
+                    }
+                })
+                .catch(function () {
+                    errorBox.textContent = "Unable to refresh status. " +
+                        "Check your network connection.";
+                    setTimeout(fetchStatus, 4000);
+                });
+        }
+
+        // Kick off polling
+        fetchStatus();
+    })();
+</script>
+{% endblock %}

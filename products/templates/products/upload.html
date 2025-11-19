@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Import Products · Product Importer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-title">Import products from CSV</div>
+        <div class="page-subtitle">
+            Upload a CSV file and let the background worker process it.
+        </div>
+    </div>
+    <div class="btn-row">
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">Back to products</a>
+    </div>
+</div>
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="{{ form.file.id_for_label }}">
+                {{ form.file.label }}
+            </label>
+            {{ form.file }}
+            {% if form.file.help_text %}
+                <div class="form-help">{{ form.file.help_text }}</div>
+            {% endif %}
+            {% if form.file.errors %}
+                <div class="form-help" style="color: #dc2626;">
+                    {{ form.file.errors|striptags }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 0.75rem;">
+            <button type="submit" class="btn btn-primary">
+                Start import
+            </button>
+        </div>
+    </form>
+
+    <p class="muted" style="margin-top: 0.75rem;">
+        After you start the import, you will be redirected to a live status page
+        that automatically refreshes until the job is complete.
+    </p>
+</div>
+{% endblock %}

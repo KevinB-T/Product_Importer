@@ -1,0 +1,21 @@
+<h1>Webhooks</h1>
+<a href="{% url 'webhook_create' %}">Add Webhook</a>
+<table border="1">
+  <tr>
+    <th>ID</th><th>URL</th><th>Event</th><th>Enabled</th><th>Actions</th>
+  </tr>
+  {% for w in object_list %}
+  <tr>
+    <td>{{ w.id }}</td>
+    <td>{{ w.url }}</td>
+    <td>{{ w.get_event_display }}</td>
+    <td>{{ w.is_enabled }}</td>
+    <td>
+      <a href="{% url 'webhook_update' w.id %}">Edit</a>
+      <a href="{% url 'webhook_test' w.id %}">Test</a>
+      <a href="{% url 'webhook_deliveries' w.id %}">Deliveries</a>
+      <a href="{% url 'webhook_delete' w.id %}">Delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
